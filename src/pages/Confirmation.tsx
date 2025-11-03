@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, MessageCircle } from 'lucide-react';
+import { CheckCircle, MessageCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function Confirmation() {
   const { orderNumber } = useParams();
@@ -34,6 +36,62 @@ export default function Confirmation() {
   const handleWhatsApp = () => {
     const message = encodeURIComponent(`Bonjour, j'ai passé la commande ${orderNumber}. J'aimerais avoir plus d'informations.`);
     window.open(`https://wa.me/212600000000?text=${message}`, '_blank');
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add header
+    doc.setFontSize(20);
+    doc.text('Confirmation de Commande', 105, 20, { align: 'center' });
+    
+    // Add order number
+    doc.setFontSize(12);
+    doc.text(`Numéro de commande: ${order.order_number}`, 20, 35);
+    doc.text(`Date: ${new Date(order.created_at).toLocaleDateString('fr-FR')}`, 20, 42);
+    
+    // Add customer info
+    doc.setFontSize(14);
+    doc.text('Informations client:', 20, 55);
+    doc.setFontSize(11);
+    doc.text(`Nom: ${order.customer_name}`, 20, 63);
+    doc.text(`Téléphone: ${order.customer_phone}`, 20, 70);
+    doc.text(`Adresse: ${order.customer_address}`, 20, 77);
+    doc.text(`Ville: ${order.customer_city}`, 20, 84);
+    
+    // Add order items table
+    const tableData = order.order_items?.map((item: any) => [
+      item.product_name,
+      item.quantity.toString(),
+      `${item.product_price} MAD`,
+      `${item.subtotal} MAD`
+    ]) || [];
+    
+    autoTable(doc, {
+      startY: 95,
+      head: [['Produit', 'Quantité', 'Prix unitaire', 'Sous-total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [255, 182, 193] }
+    });
+    
+    // Add totals
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.text(`Sous-total: ${order.subtotal} MAD`, 130, finalY);
+    doc.text(`Frais de livraison: ${order.shipping_cost} MAD`, 130, finalY + 7);
+    if (order.discount_amount > 0) {
+      doc.text(`Réduction: -${order.discount_amount} MAD`, 130, finalY + 14);
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Total: ${order.total_amount} MAD`, 130, finalY + 21);
+    } else {
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Total: ${order.total_amount} MAD`, 130, finalY + 14);
+    }
+    
+    // Save PDF
+    doc.save(`Commande_${order.order_number}.pdf`);
   };
 
   if (loading || !order) {
@@ -100,6 +158,14 @@ export default function Confirmation() {
           </div>
 
           <div className="space-y-3">
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Télécharger le PDF
+            </Button>
             <Button
               size="lg"
               className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
