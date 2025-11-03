@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
@@ -25,8 +28,13 @@ export default function ProductDetail() {
 
   useEffect(() => {
     fetchProduct();
-    fetchReviews();
   }, [slug]);
+
+  useEffect(() => {
+    if (product?.id) {
+      fetchReviews();
+    }
+  }, [product?.id]);
 
   const fetchProduct = async () => {
     const { data, error } = await supabase
@@ -59,12 +67,14 @@ export default function ProductDetail() {
   };
 
   const fetchReviews = async () => {
+    if (!product?.id) return;
+    
     const { data } = await supabase
       .from('reviews')
       .select('*')
+      .eq('product_id', product.id)
       .eq('is_approved', true)
-      .order('created_at', { ascending: false })
-      .limit(10);
+      .order('created_at', { ascending: false });
 
     if (data) {
       setReviews(data);
@@ -328,10 +338,12 @@ export default function ProductDetail() {
         </div>
 
         {/* Customer Reviews Section */}
-        {reviews.length > 0 && (
-          <div className="mt-12 lg:mt-16">
-            <h2 className="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center">Ce Que Nos Clientes Disent</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="mt-12 lg:mt-16">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center">Avis Clients</h2>
+          
+          {/* Reviews Display */}
+          {reviews.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
               {reviews.map((review) => (
                 <Card key={review.id} className="border-border">
                   <CardContent className="pt-4 lg:pt-6">
@@ -358,8 +370,86 @@ export default function ProductDetail() {
                 </Card>
               ))}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Review Submission Form */}
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="pt-6">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4">Laisser un avis</h3>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const name = formData.get('name') as string;
+                const rating = parseInt(formData.get('rating') as string);
+                const comment = formData.get('comment') as string;
+
+                if (!name || !rating || !comment) {
+                  toast.error('Veuillez remplir tous les champs');
+                  return;
+                }
+
+                const { error } = await supabase.from('reviews').insert({
+                  product_id: product.id,
+                  customer_name: name,
+                  rating,
+                  comment,
+                  is_approved: false,
+                  is_verified: false,
+                });
+
+                if (error) {
+                  toast.error('Erreur lors de l\'envoi de l\'avis');
+                  return;
+                }
+
+                toast.success('Votre avis a été soumis et sera publié après approbation');
+                e.currentTarget.reset();
+              }} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Votre nom *</Label>
+                  <Input id="name" name="name" required className="mt-1" />
+                </div>
+
+                <div>
+                  <Label htmlFor="rating">Note *</Label>
+                  <select 
+                    id="rating" 
+                    name="rating" 
+                    required 
+                    className="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
+                  >
+                    <option value="">Sélectionnez une note</option>
+                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ Très bien</option>
+                    <option value="3">⭐⭐⭐ Bien</option>
+                    <option value="2">⭐⭐ Moyen</option>
+                    <option value="1">⭐ Décevant</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="comment">Votre avis *</Label>
+                  <Textarea 
+                    id="comment" 
+                    name="comment" 
+                    required 
+                    rows={4} 
+                    className="mt-1"
+                    placeholder="Partagez votre expérience avec ce produit..."
+                  />
+                </div>
+
+                <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
+                  Envoyer mon avis
+                </Button>
+                
+                <p className="text-xs text-muted-foreground text-center">
+                  Votre avis sera publié après vérification par notre équipe
+                </p>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <CheckoutModal
