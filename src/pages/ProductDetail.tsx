@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { CheckoutModal } from '@/components/CheckoutModal';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -20,6 +21,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     fetchProduct();
@@ -110,43 +112,64 @@ export default function ProductDetail() {
     window.open(`https://wa.me/212600000000?text=${message}`, '_blank');
   };
 
+  const images = productMedia.filter(m => m.media_type === 'image');
+  const videos = productMedia.filter(m => m.media_type === 'video');
+
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-4 lg:py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* Left: Image/Video Gallery */}
           <div className="space-y-4">
-            {productMedia.length > 0 ? (
+            {images.length > 0 ? (
               <>
-                {/* Main media display */}
-                <div className="rounded-lg overflow-hidden" style={{ minHeight: '500px' }}>
-                  {productMedia.find(m => m.is_primary)?.media_type === 'video' ? (
-                    <video
-                      src={productMedia.find(m => m.is_primary)?.media_url}
-                      controls
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={productMedia.find(m => m.is_primary || m.media_type === 'image')?.media_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
+                {/* Main image carousel */}
+                <Carousel className="w-full" opts={{ loop: true }}>
+                  <CarouselContent>
+                    {images.map((media, index) => (
+                      <CarouselItem key={media.id}>
+                        <div className="rounded-lg overflow-hidden aspect-square lg:aspect-auto lg:min-h-[500px]">
+                          <img
+                            src={media.media_url}
+                            alt={`${product.name} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2" />
+                  <CarouselNext className="right-2" />
+                </Carousel>
                 
                 {/* Thumbnail gallery */}
-                {productMedia.length > 1 && (
+                {images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
-                    {productMedia.filter(m => m.media_type === 'image').map((media) => (
+                    {images.map((media, index) => (
                       <img
                         key={media.id}
                         src={media.media_url}
                         alt={product.name}
-                        className={`w-full h-20 object-cover rounded cursor-pointer border-2 ${
-                          media.is_primary ? 'border-primary' : 'border-transparent'
-                        }`}
+                        className={`w-full h-16 lg:h-20 object-cover rounded cursor-pointer border-2 ${
+                          media.is_primary ? 'border-primary' : 'border-border'
+                        } hover:border-primary transition-colors`}
                       />
+                    ))}
+                  </div>
+                )}
+
+                {/* Video section */}
+                {videos.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-sm">Vidéo du produit</h3>
+                    {videos.map((video) => (
+                      <div key={video.id} className="rounded-lg overflow-hidden aspect-video">
+                        <video
+                          src={video.media_url}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
@@ -168,24 +191,24 @@ export default function ProductDetail() {
           </div>
 
           {/* Right: Details */}
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-5 h-5 ${
+                    className={`w-4 h-4 lg:w-5 lg:h-5 ${
                       i < Math.floor(product.rating || 4.5) 
                         ? 'fill-accent text-accent' 
                         : 'text-muted-foreground'
                     }`} 
                   />
                 ))}
-                <span className="text-sm text-muted-foreground">({product.rating || 4.5})</span>
+                <span className="text-xs lg:text-sm text-muted-foreground">({product.rating || 4.5})</span>
               </div>
-              <p className="text-5xl font-bold mb-2">{product.price} MAD</p>
-              <p className="text-lg text-muted-foreground mb-4">{product.description}</p>
-              <p className="text-sm">
+              <p className="text-3xl lg:text-5xl font-bold mb-2">{product.price} MAD</p>
+              <p className="text-base lg:text-lg text-muted-foreground mb-4">{product.description}</p>
+              <p className="text-xs lg:text-sm">
                 Stock disponible: <span className="font-semibold">{product.stock_quantity} unités</span>
               </p>
             </div>
@@ -195,27 +218,27 @@ export default function ProductDetail() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-l-full"
+                  className="rounded-l-full h-9 w-9 lg:h-10 lg:w-10"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3 h-3 lg:w-4 lg:h-4" />
                 </Button>
-                <span className="px-6 font-semibold">{quantity}</span>
+                <span className="px-4 lg:px-6 font-semibold text-sm lg:text-base">{quantity}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-r-full"
+                  className="rounded-r-full h-9 w-9 lg:h-10 lg:w-10"
                   onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2 lg:space-y-3">
               <Button
                 size="lg"
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-11 lg:h-12 text-sm lg:text-base"
                 onClick={handleBuyNow}
                 disabled={product.stock_quantity <= 0}
               >
@@ -224,20 +247,20 @@ export default function ProductDetail() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full"
+                className="w-full h-11 lg:h-12 text-sm lg:text-base"
                 onClick={handleAddToCart}
                 disabled={product.stock_quantity <= 0}
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
+                <ShoppingCart className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                 {product.stock_quantity <= 0 ? 'Rupture de stock' : 'Ajouter au Panier'}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
+                className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white h-11 lg:h-12 text-sm lg:text-base"
                 onClick={handleWhatsApp}
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
+                <MessageCircle className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                 Commander via WhatsApp
               </Button>
             </div>
@@ -245,56 +268,56 @@ export default function ProductDetail() {
         </div>
 
         {/* Tabs Section */}
-        <div className="mt-12">
+        <div className="mt-8 lg:mt-12">
           <Tabs defaultValue="description">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="ingredients">Ingrédients</TabsTrigger>
-              <TabsTrigger value="benefits">Bienfaits</TabsTrigger>
-              <TabsTrigger value="usage">Mode d'emploi</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 h-auto">
+              <TabsTrigger value="description" className="text-xs lg:text-sm">Description</TabsTrigger>
+              <TabsTrigger value="ingredients" className="text-xs lg:text-sm">Ingrédients</TabsTrigger>
+              <TabsTrigger value="benefits" className="text-xs lg:text-sm">Bienfaits</TabsTrigger>
+              <TabsTrigger value="usage" className="text-xs lg:text-sm">Mode d'emploi</TabsTrigger>
             </TabsList>
-            <TabsContent value="description" className="mt-6">
-              <p className="text-lg">{product.long_description}</p>
+            <TabsContent value="description" className="mt-4 lg:mt-6">
+              <p className="text-sm lg:text-lg">{product.long_description}</p>
             </TabsContent>
-            <TabsContent value="ingredients" className="mt-6">
+            <TabsContent value="ingredients" className="mt-4 lg:mt-6">
               <ul className="space-y-2">
                 {product.ingredients?.map((ingredient: string, idx: number) => (
-                  <li key={idx} className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                  <li key={idx} className="flex items-center gap-2 text-sm lg:text-base">
+                    <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></span>
                     {ingredient}
                   </li>
                 ))}
               </ul>
             </TabsContent>
-            <TabsContent value="benefits" className="mt-6">
+            <TabsContent value="benefits" className="mt-4 lg:mt-6">
               <ul className="space-y-2">
                 {product.benefits?.map((benefit: string, idx: number) => (
-                  <li key={idx} className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-accent rounded-full"></span>
+                  <li key={idx} className="flex items-center gap-2 text-sm lg:text-base">
+                    <span className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></span>
                     {benefit}
                   </li>
                 ))}
               </ul>
             </TabsContent>
-            <TabsContent value="usage" className="mt-6">
-              <p className="text-lg">{product.usage_instructions}</p>
+            <TabsContent value="usage" className="mt-4 lg:mt-6">
+              <p className="text-sm lg:text-lg">{product.usage_instructions}</p>
             </TabsContent>
           </Tabs>
         </div>
 
         {/* Customer Reviews Section */}
         {reviews.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-3xl font-bold mb-8 text-center">Ce Que Nos Clientes Disent</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-12 lg:mt-16">
+            <h2 className="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center">Ce Que Nos Clientes Disent</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {reviews.map((review) => (
                 <Card key={review.id} className="border-border">
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-4 lg:pt-6">
                     <div className="flex items-center gap-2 mb-3">
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-4 h-4 ${
+                          className={`w-3 h-3 lg:w-4 lg:h-4 ${
                             i < review.rating 
                               ? 'fill-accent text-accent' 
                               : 'text-muted-foreground'
@@ -302,9 +325,9 @@ export default function ProductDetail() {
                         />
                       ))}
                     </div>
-                    <p className="text-sm mb-3">{review.comment}</p>
+                    <p className="text-xs lg:text-sm mb-3">{review.comment}</p>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm">{review.customer_name}</p>
+                      <p className="font-semibold text-xs lg:text-sm">{review.customer_name}</p>
                       {review.is_verified && (
                         <Badge variant="secondary" className="text-xs">Achat vérifié</Badge>
                       )}
