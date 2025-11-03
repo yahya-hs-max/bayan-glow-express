@@ -15,6 +15,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [product, setProduct] = useState<any>(null);
+  const [productMedia, setProductMedia] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -40,6 +41,18 @@ export default function ProductDetail() {
     }
 
     setProduct(data);
+    
+    // Fetch product media
+    const { data: mediaData } = await supabase
+      .from('product_media')
+      .select('*')
+      .eq('product_id', data.id)
+      .order('display_order', { ascending: true });
+    
+    if (mediaData) {
+      setProductMedia(mediaData);
+    }
+    
     setLoading(false);
   };
 
@@ -101,18 +114,57 @@ export default function ProductDetail() {
     <div className="min-h-screen py-12 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left: Image */}
-          <div
-            className="rounded-lg p-12 flex items-center justify-center relative"
-            style={{ background: product.background_gradient, minHeight: '500px' }}
-          >
-            <Badge className="absolute top-4 left-4 bg-card text-card-foreground border-border">
-              {product.badge_type}
-            </Badge>
-            <div className="text-center">
-              <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-              <p className="text-lg text-muted-foreground">{product.size}</p>
-            </div>
+          {/* Left: Image/Video Gallery */}
+          <div className="space-y-4">
+            {productMedia.length > 0 ? (
+              <>
+                {/* Main media display */}
+                <div className="rounded-lg overflow-hidden" style={{ minHeight: '500px' }}>
+                  {productMedia.find(m => m.is_primary)?.media_type === 'video' ? (
+                    <video
+                      src={productMedia.find(m => m.is_primary)?.media_url}
+                      controls
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={productMedia.find(m => m.is_primary || m.media_type === 'image')?.media_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                
+                {/* Thumbnail gallery */}
+                {productMedia.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {productMedia.filter(m => m.media_type === 'image').map((media) => (
+                      <img
+                        key={media.id}
+                        src={media.media_url}
+                        alt={product.name}
+                        className={`w-full h-20 object-cover rounded cursor-pointer border-2 ${
+                          media.is_primary ? 'border-primary' : 'border-transparent'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div
+                className="rounded-lg p-12 flex items-center justify-center"
+                style={{ background: product.background_gradient, minHeight: '500px' }}
+              >
+                <Badge className="absolute top-4 left-4 bg-card text-card-foreground border-border">
+                  {product.badge_type}
+                </Badge>
+                <div className="text-center">
+                  <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
+                  <p className="text-lg text-muted-foreground">{product.size}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right: Details */}

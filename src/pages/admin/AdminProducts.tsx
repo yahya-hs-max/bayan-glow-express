@@ -8,13 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { ProductMediaManager } from "@/components/admin/ProductMediaManager";
 
 const AdminProducts = () => {
   const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [productMedia, setProductMedia] = useState<Record<string, any>>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -30,7 +33,6 @@ const AdminProducts = () => {
     ingredients: [] as string[],
     benefits: [] as string[],
     usage_instructions: "",
-    image_url: "",
     stock_quantity: "0",
     shipping_cost: "0",
     rating: "4.5",
@@ -48,8 +50,23 @@ const AdminProducts = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error) {
-      setProducts(data || []);
+    if (!error && data) {
+      setProducts(data);
+      
+      // Fetch primary images for all products
+      const { data: mediaData } = await supabase
+        .from("product_media")
+        .select("*")
+        .eq("is_primary", true)
+        .eq("media_type", "image");
+      
+      if (mediaData) {
+        const mediaMap: Record<string, any> = {};
+        mediaData.forEach((media) => {
+          mediaMap[media.product_id] = media;
+        });
+        setProductMedia(mediaMap);
+      }
     }
   };
 
@@ -81,7 +98,6 @@ const AdminProducts = () => {
         ingredients: product.ingredients || [],
         benefits: product.benefits || [],
         usage_instructions: product.usage_instructions || "",
-        image_url: product.image_url || "",
         stock_quantity: product.stock_quantity.toString(),
         shipping_cost: product.shipping_cost?.toString() || "0",
         rating: product.rating?.toString() || "4.5",
@@ -102,7 +118,6 @@ const AdminProducts = () => {
         ingredients: [],
         benefits: [],
         usage_instructions: "",
-        image_url: "",
         stock_quantity: "0",
         shipping_cost: "0",
         rating: "4.5",
@@ -212,14 +227,19 @@ const AdminProducts = () => {
                 {products.map((product) => (
                   <tr key={product.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      {product.image_url ? (
+                      {productMedia[product.id]?.media_url ? (
                         <img
-                          src={product.image_url}
+                          src={productMedia[product.id].media_url}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gray-200 rounded" />
+                        <div 
+                          className="w-12 h-12 rounded flex items-center justify-center text-xs font-bold"
+                          style={{ background: product.background_gradient || '#ccc' }}
+                        >
+                          {product.name.substring(0, 2)}
+                        </div>
                       )}
                     </td>
                     <td className="py-3 px-4 text-sm font-medium">{product.name}</td>
@@ -266,14 +286,22 @@ const AdminProducts = () => {
 
       {/* Product Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? "Modifier le produit" : "Nouveau produit"}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <Tabs defaultValue="info" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="info">Informations</TabsTrigger>
+              <TabsTrigger value="media" disabled={!editingProduct}>
+                Médias {!editingProduct && "(Créer d'abord)"}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info" className="space-y-4 mt-4">
             <div>
               <Label>Nom *</Label>
               <Input
@@ -409,14 +437,6 @@ const AdminProducts = () => {
               />
             </div>
 
-            <div>
-              <Label>URL de l'image</Label>
-              <Input
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              />
-            </div>
-
             <div className="flex items-center gap-2">
               <Switch
                 checked={formData.is_active}
@@ -428,9 +448,20 @@ const AdminProducts = () => {
             <Button onClick={handleSave} className="w-full bg-primary hover:bg-primary/90 text-black">
               {editingProduct ? "Mettre à jour" : "Créer"}
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </TabsContent>
+
+          {/* Media Tab - Only for existing products */}
+          {editingProduct && (
+            <TabsContent value="media" className="mt-4">
+              <ProductMediaManager
+                productId={editingProduct?.id}
+                onMediaUpdate={fetchProducts}
+              />
+            </TabsContent>
+          )}
+        </Tabs>
+      </DialogContent>
+    </Dialog>
     </div>
   );
 };
