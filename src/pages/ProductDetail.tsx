@@ -116,7 +116,7 @@ export default function ProductDetail() {
   const videos = productMedia.filter(m => m.media_type === 'video');
 
   return (
-    <div className="min-h-screen py-4 lg:py-12 px-4">
+    <div className="min-h-screen py-4 lg:py-12 px-4 pb-32 lg:pb-12">
       <div className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* Left: Image/Video Gallery */}
@@ -344,6 +344,41 @@ export default function ProductDetail() {
         open={checkoutOpen}
         onClose={() => setCheckoutOpen(false)}
       />
+
+      {/* Mobile Fixed Bottom CTA */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 shadow-lg z-50">
+        <div className="flex flex-col gap-2 max-w-md mx-auto">
+          <Button
+            size="lg"
+            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-12"
+            onClick={handleBuyNow}
+            disabled={product.stock_quantity <= 0}
+          >
+            Acheter Maintenant
+          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full h-11"
+              onClick={handleAddToCart}
+              disabled={product.stock_quantity <= 0}
+            >
+              <ShoppingCart className="w-4 h-4 mr-1" />
+              Panier
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white h-11"
+              onClick={handleWhatsApp}
+            >
+              <MessageCircle className="w-4 h-4 mr-1" />
+              WhatsApp
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
