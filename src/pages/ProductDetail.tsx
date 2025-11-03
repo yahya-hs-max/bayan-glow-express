@@ -268,6 +268,14 @@ export default function ProductDetail() {
                 Commander via WhatsApp
               </Button>
             </div>
+
+            {/* Description Section */}
+            <div className="mt-6 lg:mt-8 space-y-3 lg:space-y-4">
+              <h2 className="text-xl lg:text-2xl font-bold uppercase tracking-wide">DESCRIPTION</h2>
+              <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+                {product.long_description || product.description}
+              </p>
+            </div>
           </div>
         </div>
 
