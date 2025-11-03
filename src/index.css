@@ -67,3 +67,94 @@ All colors MUST be HSL.
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@400;500;600;700&family=Dancing+Script:wght@400;700&display=swap');
+
+/* Rich Text Editor Styles */
+.quill {
+  @apply bg-background border border-border rounded-md;
+}
+
+.ql-toolbar {
+  @apply bg-card border-b border-border rounded-t-md;
+}
+
+.ql-container {
+  @apply bg-background text-foreground rounded-b-md;
+  min-height: 150px;
+}
+
+.ql-editor {
+  @apply text-foreground;
+  min-height: 150px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.ql-editor.ql-blank::before {
+  @apply text-muted-foreground italic;
+}
+
+.ql-stroke {
+  @apply stroke-foreground;
+}
+
+.ql-fill {
+  @apply fill-foreground;
+}
+
+.ql-picker-label {
+  @apply text-foreground;
+}
+
+.ql-picker-options {
+  @apply bg-popover border border-border;
+}
+
+.ql-toolbar button:hover,
+.ql-toolbar button:focus,
+.ql-toolbar button.ql-active {
+  @apply bg-accent/20;
+}
+
+/* Prose styles for rendered HTML content */
+.prose {
+  @apply text-foreground max-w-none;
+}
+
+.prose p {
+  @apply mb-4;
+}
+
+.prose strong {
+  @apply font-semibold;
+}
+
+.prose em {
+  @apply italic;
+}
+
+.prose ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.prose ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose a {
+  @apply text-primary underline hover:text-primary/80;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold mb-4;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold mb-3;
+}
+
+.prose h3 {
+  @apply text-xl font-bold mb-2;
+}
