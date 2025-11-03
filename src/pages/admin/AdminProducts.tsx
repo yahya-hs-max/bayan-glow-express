@@ -14,6 +14,7 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 const AdminProducts = () => {
   const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -38,6 +39,7 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
@@ -48,6 +50,18 @@ const AdminProducts = () => {
 
     if (!error) {
       setProducts(data || []);
+    }
+  };
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("is_active", true)
+      .order("name", { ascending: true });
+
+    if (!error) {
+      setCategories(data || []);
     }
   };
 
@@ -335,13 +349,14 @@ const AdminProducts = () => {
                 <Label>Catégorie</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Hydratation">Hydratation</SelectItem>
-                    <SelectItem value="Protection Solaire">Protection Solaire</SelectItem>
-                    <SelectItem value="Maquillage">Maquillage</SelectItem>
-                    <SelectItem value="Nettoyage">Nettoyage</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
