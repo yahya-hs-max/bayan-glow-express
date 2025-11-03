@@ -53,6 +53,9 @@ export function Header() {
               <Link to="/boutique" className="hover:text-primary transition-colors">
                 Boutique
               </Link>
+              <Link to="/suivre-commande" className="hover:text-primary transition-colors">
+                Suivre commande
+              </Link>
               <Link to="/a-propos" className="hover:text-primary transition-colors">
                 À Propos
               </Link>
@@ -96,6 +99,13 @@ export function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Boutique
+            </Link>
+            <Link
+              to="/suivre-commande"
+              className="text-2xl hover:text-primary transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Suivre commande
             </Link>
             <Link
               to="/a-propos"

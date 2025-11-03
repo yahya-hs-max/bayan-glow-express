@@ -12,6 +12,7 @@ import Boutique from "./pages/Boutique";
 import ProductDetail from "./pages/ProductDetail";
 import Panier from "./pages/Panier";
 import Confirmation from "./pages/Confirmation";
+import TrackOrder from "./pages/TrackOrder";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/produit/:slug" element={<ProductDetail />} />
                 <Route path="/panier" element={<Panier />} />
                 <Route path="/confirmation/:orderNumber" element={<Confirmation />} />
+                <Route path="/suivre-commande" element={<TrackOrder />} />
                 <Route path="/a-propos" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 
