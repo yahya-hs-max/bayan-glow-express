@@ -306,19 +306,12 @@ export default function ProductDetail() {
 
         {/* Tabs Section */}
         <div className="mt-8 lg:mt-12">
-          <Tabs defaultValue="description">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto gap-1">
-              <TabsTrigger value="description" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Description</TabsTrigger>
+          <Tabs defaultValue="ingredients">
+            <TabsList className="grid w-full grid-cols-3 h-auto gap-1">
               <TabsTrigger value="ingredients" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Ingrédients</TabsTrigger>
               <TabsTrigger value="benefits" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Bienfaits</TabsTrigger>
               <TabsTrigger value="usage" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Mode d'emploi</TabsTrigger>
             </TabsList>
-            <TabsContent value="description" className="mt-4 lg:mt-6">
-              <div 
-                className="text-sm lg:text-lg prose prose-sm lg:prose-base max-w-none"
-                dangerouslySetInnerHTML={{ __html: product.long_description }}
-              />
-            </TabsContent>
             <TabsContent value="ingredients" className="mt-4 lg:mt-6">
               <ul className="space-y-2">
                 {product.ingredients?.map((ingredient: string, idx: number) => (
