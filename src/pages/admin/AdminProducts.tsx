@@ -349,6 +349,36 @@ const AdminProducts = () => {
             </div>
 
             <div>
+              <Label>Ingrédients</Label>
+              <Textarea
+                value={formData.ingredients.join('\n')}
+                onChange={(e) => setFormData({ ...formData, ingredients: e.target.value.split('\n').filter(line => line.trim()) })}
+                rows={4}
+                placeholder="Un ingrédient par ligne"
+              />
+            </div>
+
+            <div>
+              <Label>Bienfaits</Label>
+              <Textarea
+                value={formData.benefits.join('\n')}
+                onChange={(e) => setFormData({ ...formData, benefits: e.target.value.split('\n').filter(line => line.trim()) })}
+                rows={4}
+                placeholder="Un bienfait par ligne"
+              />
+            </div>
+
+            <div>
+              <Label>Mode d'emploi</Label>
+              <Textarea
+                value={formData.usage_instructions}
+                onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
+                rows={3}
+                placeholder="Instructions d'utilisation du produit"
+              />
+            </div>
+
+            <div>
               <Label>URL de l'image</Label>
               <Input
                 value={formData.image_url}
