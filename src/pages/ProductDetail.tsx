@@ -307,11 +307,11 @@ export default function ProductDetail() {
         {/* Tabs Section */}
         <div className="mt-8 lg:mt-12">
           <Tabs defaultValue="description">
-            <TabsList className="grid w-full grid-cols-4 h-auto">
-              <TabsTrigger value="description" className="text-xs lg:text-sm">Description</TabsTrigger>
-              <TabsTrigger value="ingredients" className="text-xs lg:text-sm">Ingrédients</TabsTrigger>
-              <TabsTrigger value="benefits" className="text-xs lg:text-sm">Bienfaits</TabsTrigger>
-              <TabsTrigger value="usage" className="text-xs lg:text-sm">Mode d'emploi</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto gap-1">
+              <TabsTrigger value="description" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Description</TabsTrigger>
+              <TabsTrigger value="ingredients" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Ingrédients</TabsTrigger>
+              <TabsTrigger value="benefits" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Bienfaits</TabsTrigger>
+              <TabsTrigger value="usage" className="text-[10px] sm:text-xs lg:text-sm px-1 lg:px-3">Mode d'emploi</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-4 lg:mt-6">
               <div 
