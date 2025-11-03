@@ -17,7 +17,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
-import AdminSetup from "./pages/admin/AdminSetup";
+import Register from "./pages/Register";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -47,9 +47,9 @@ const App = () => (
                 <Route path="/suivre-commande" element={<TrackOrder />} />
                 <Route path="/a-propos" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/register" element={<Register />} />
                 
                 {/* Admin Routes */}
-                <Route path="/admin/setup" element={<AdminSetup />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route path="dashboard" element={<AdminDashboard />} />
