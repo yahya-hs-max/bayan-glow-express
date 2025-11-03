@@ -211,7 +211,10 @@ export default function ProductDetail() {
                 <span className="text-xs lg:text-sm text-muted-foreground">({product.rating || 4.5})</span>
               </div>
               <p className="text-3xl lg:text-5xl font-bold mb-2">{product.price} MAD</p>
-              <p className="text-base lg:text-lg text-muted-foreground mb-4">{product.description}</p>
+              <div 
+                className="text-base lg:text-lg text-muted-foreground mb-4 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
               <p className="text-xs lg:text-sm">
                 Stock disponible: <span className="font-semibold">{product.stock_quantity} unités</span>
               </p>
@@ -272,9 +275,10 @@ export default function ProductDetail() {
             {/* Description Section */}
             <div className="mt-6 lg:mt-8 space-y-3 lg:space-y-4">
               <h2 className="text-xl lg:text-2xl font-bold uppercase tracking-wide">DESCRIPTION</h2>
-              <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-                {product.long_description || product.description}
-              </p>
+              <div 
+                className="text-sm lg:text-base text-muted-foreground leading-relaxed prose prose-sm lg:prose-base max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.long_description || product.description }}
+              />
             </div>
           </div>
         </div>
@@ -289,7 +293,10 @@ export default function ProductDetail() {
               <TabsTrigger value="usage" className="text-xs lg:text-sm">Mode d'emploi</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-4 lg:mt-6">
-              <p className="text-sm lg:text-lg">{product.long_description}</p>
+              <div 
+                className="text-sm lg:text-lg prose prose-sm lg:prose-base max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.long_description }}
+              />
             </TabsContent>
             <TabsContent value="ingredients" className="mt-4 lg:mt-6">
               <ul className="space-y-2">
@@ -312,7 +319,10 @@ export default function ProductDetail() {
               </ul>
             </TabsContent>
             <TabsContent value="usage" className="mt-4 lg:mt-6">
-              <p className="text-sm lg:text-lg">{product.usage_instructions}</p>
+              <div 
+                className="text-sm lg:text-lg prose prose-sm lg:prose-base max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.usage_instructions }}
+              />
             </TabsContent>
           </Tabs>
         </div>

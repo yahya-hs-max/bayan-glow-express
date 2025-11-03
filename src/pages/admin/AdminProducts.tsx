@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { ProductMediaManager } from "@/components/admin/ProductMediaManager";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const AdminProducts = () => {
   const { toast } = useToast();
@@ -392,19 +394,45 @@ const AdminProducts = () => {
 
             <div>
               <Label>Description courte</Label>
-              <Input
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
+              <div className="mt-2 bg-background">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description}
+                  onChange={(value) => setFormData({ ...formData, description: value })}
+                  modules={{
+                    toolbar: [
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      ['link'],
+                      ['clean']
+                    ]
+                  }}
+                  className="bg-background"
+                />
+              </div>
             </div>
 
             <div>
               <Label>Description longue</Label>
-              <Textarea
-                value={formData.long_description}
-                onChange={(e) => setFormData({ ...formData, long_description: e.target.value })}
-                rows={3}
-              />
+              <div className="mt-2 bg-background">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.long_description}
+                  onChange={(value) => setFormData({ ...formData, long_description: value })}
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, false] }],
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      [{ 'align': [] }],
+                      ['link'],
+                      ['clean']
+                    ]
+                  }}
+                  className="bg-background"
+                  style={{ minHeight: '200px' }}
+                />
+              </div>
             </div>
 
             <div>
