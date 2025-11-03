@@ -136,17 +136,29 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* Left: Image/Video Gallery */}
           <div className="space-y-4">
-            {images.length > 0 ? (
+            {(images.length > 0 || videos.length > 0) ? (
               <>
-                {/* Main image carousel */}
+                {/* Main media carousel - images and videos combined */}
                 <Carousel className="w-full" opts={{ loop: true }}>
                   <CarouselContent>
                     {images.map((media, index) => (
-                      <CarouselItem key={media.id}>
+                      <CarouselItem key={`img-${media.id}`}>
                         <div className="rounded-lg overflow-hidden aspect-square lg:aspect-auto lg:min-h-[500px]">
                           <img
                             src={media.media_url}
                             alt={`${product.name} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                    {videos.map((media, index) => (
+                      <CarouselItem key={`vid-${media.id}`}>
+                        <div className="rounded-lg overflow-hidden aspect-square lg:aspect-auto lg:min-h-[500px]">
+                          <video
+                            src={media.media_url}
+                            controls
+                            muted
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -158,11 +170,11 @@ export default function ProductDetail() {
                 </Carousel>
                 
                 {/* Thumbnail gallery */}
-                {images.length > 1 && (
+                {(images.length + videos.length) > 1 && (
                   <div className="grid grid-cols-4 gap-2">
                     {images.map((media, index) => (
                       <img
-                        key={media.id}
+                        key={`thumb-img-${media.id}`}
                         src={media.media_url}
                         alt={product.name}
                         className={`w-full h-16 lg:h-20 object-cover rounded cursor-pointer border-2 ${
@@ -170,20 +182,18 @@ export default function ProductDetail() {
                         } hover:border-primary transition-colors`}
                       />
                     ))}
-                  </div>
-                )}
-
-                {/* Video section */}
-                {videos.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-sm">Vidéo du produit</h3>
-                    {videos.map((video) => (
-                      <div key={video.id} className="rounded-lg overflow-hidden aspect-video">
+                    {videos.map((media, index) => (
+                      <div
+                        key={`thumb-vid-${media.id}`}
+                        className="relative w-full h-16 lg:h-20 rounded cursor-pointer border-2 border-border hover:border-primary transition-colors overflow-hidden"
+                      >
                         <video
-                          src={video.media_url}
-                          controls
+                          src={media.media_url}
                           className="w-full h-full object-cover"
                         />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <MessageCircle className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     ))}
                   </div>
