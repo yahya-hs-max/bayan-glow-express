@@ -55,7 +55,14 @@ export default function Boutique() {
   const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
 
   const handleBuyNow = (product: any) => {
-    addItem({ id: product.id, name: product.name, price: product.price, quantity: 1, size: product.size });
+    addItem({ 
+      id: product.id, 
+      name: product.name, 
+      price: product.price, 
+      quantity: 1, 
+      size: product.size,
+      shipping_cost: product.shipping_cost 
+    });
     setSelectedProduct(product);
     setCheckoutOpen(true);
   };

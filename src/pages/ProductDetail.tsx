@@ -49,7 +49,14 @@ export default function ProductDetail() {
       toast.error('Produit en rupture de stock');
       return;
     }
-    addItem({ id: product.id, name: product.name, price: product.price, quantity, size: product.size });
+    addItem({ 
+      id: product.id, 
+      name: product.name, 
+      price: product.price, 
+      quantity, 
+      size: product.size,
+      shipping_cost: product.shipping_cost 
+    });
     toast.success('✓ Produit ajouté au panier avec succès !');
   };
 
@@ -58,7 +65,14 @@ export default function ProductDetail() {
       toast.error('Produit en rupture de stock');
       return;
     }
-    addItem({ id: product.id, name: product.name, price: product.price, quantity, size: product.size });
+    addItem({ 
+      id: product.id, 
+      name: product.name, 
+      price: product.price, 
+      quantity, 
+      size: product.size,
+      shipping_cost: product.shipping_cost 
+    });
     setCheckoutOpen(true);
   };
 

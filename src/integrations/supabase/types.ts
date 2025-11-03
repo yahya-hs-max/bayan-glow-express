@@ -194,6 +194,7 @@ export type Database = {
           long_description: string | null
           name: string
           price: number
+          shipping_cost: number | null
           size: string | null
           slug: string
           stock_quantity: number | null
@@ -214,6 +215,7 @@ export type Database = {
           long_description?: string | null
           name: string
           price: number
+          shipping_cost?: number | null
           size?: string | null
           slug: string
           stock_quantity?: number | null
@@ -234,6 +236,7 @@ export type Database = {
           long_description?: string | null
           name?: string
           price?: number
+          shipping_cost?: number | null
           size?: string | null
           slug?: string
           stock_quantity?: number | null

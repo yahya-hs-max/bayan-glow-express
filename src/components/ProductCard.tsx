@@ -16,6 +16,7 @@ interface ProductCardProps {
   background_gradient: string;
   badge_type: string;
   stock_quantity: number;
+  shipping_cost?: number;
   rating?: number;
   onBuyNow: () => void;
 }
@@ -30,6 +31,7 @@ export function ProductCard({
   background_gradient,
   badge_type,
   stock_quantity,
+  shipping_cost,
   rating = 4.5,
   onBuyNow,
 }: ProductCardProps) {
@@ -42,7 +44,7 @@ export function ProductCard({
       toast.error('Produit en rupture de stock');
       return;
     }
-    addItem({ id, name, price, quantity: 1, size });
+    addItem({ id, name, price, quantity: 1, size, shipping_cost });
     toast.success('✓ Produit ajouté au panier avec succès !');
   };
 

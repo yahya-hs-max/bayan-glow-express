@@ -31,6 +31,7 @@ const AdminProducts = () => {
     usage_instructions: "",
     image_url: "",
     stock_quantity: "0",
+    shipping_cost: "0",
     is_active: true,
   });
 
@@ -67,6 +68,7 @@ const AdminProducts = () => {
         usage_instructions: product.usage_instructions || "",
         image_url: product.image_url || "",
         stock_quantity: product.stock_quantity.toString(),
+        shipping_cost: product.shipping_cost?.toString() || "0",
         is_active: product.is_active,
       });
     } else {
@@ -86,6 +88,7 @@ const AdminProducts = () => {
         usage_instructions: "",
         image_url: "",
         stock_quantity: "0",
+        shipping_cost: "0",
         is_active: true,
       });
     }
@@ -97,6 +100,7 @@ const AdminProducts = () => {
       ...formData,
       price: parseFloat(formData.price),
       stock_quantity: parseInt(formData.stock_quantity),
+      shipping_cost: parseFloat(formData.shipping_cost),
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-"),
     };
 
@@ -269,11 +273,12 @@ const AdminProducts = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Prix (MAD) *</Label>
                 <Input
                   type="number"
+                  step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 />
@@ -285,6 +290,19 @@ const AdminProducts = () => {
                   value={formData.stock_quantity}
                   onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
                 />
+              </div>
+              <div>
+                <Label>Frais livraison (MAD)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.shipping_cost}
+                  onChange={(e) => setFormData({ ...formData, shipping_cost: e.target.value })}
+                  placeholder="0 = par ville"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Si 0, frais par ville appliqués
+                </p>
               </div>
             </div>
 

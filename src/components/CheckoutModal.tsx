@@ -45,7 +45,26 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
 
-  const shippingCost = formData.city ? (subtotal >= 500 ? 0 : SHIPPING_COSTS[formData.city] || 50) : 0;
+  // Calculate shipping cost based on product-specific costs or city costs
+  const calculateShippingCost = () => {
+    if (!formData.city) return 0;
+    if (subtotal >= 500) return 0; // Free shipping over 500 MAD
+    
+    // Check if any product has specific shipping cost
+    const productShippingCosts = items
+      .filter(item => item.shipping_cost && item.shipping_cost > 0)
+      .map(item => item.shipping_cost || 0);
+    
+    if (productShippingCosts.length > 0) {
+      // Use the maximum product shipping cost
+      return Math.max(...productShippingCosts);
+    }
+    
+    // Use city-based shipping cost
+    return SHIPPING_COSTS[formData.city] || 50;
+  };
+
+  const shippingCost = calculateShippingCost();
   const total = subtotal + shippingCost - discount;
 
   const applyCoupon = async () => {
