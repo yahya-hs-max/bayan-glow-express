@@ -194,6 +194,7 @@ export type Database = {
           long_description: string | null
           name: string
           price: number
+          rating: number | null
           shipping_cost: number | null
           size: string | null
           slug: string
@@ -215,6 +216,7 @@ export type Database = {
           long_description?: string | null
           name: string
           price: number
+          rating?: number | null
           shipping_cost?: number | null
           size?: string | null
           slug: string
@@ -236,6 +238,7 @@ export type Database = {
           long_description?: string | null
           name?: string
           price?: number
+          rating?: number | null
           shipping_cost?: number | null
           size?: string | null
           slug?: string

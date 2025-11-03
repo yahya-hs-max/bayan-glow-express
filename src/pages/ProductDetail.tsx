@@ -4,6 +4,7 @@ import { Star, ShoppingCart, MessageCircle, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
@@ -14,12 +15,14 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [product, setProduct] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProduct();
+    fetchReviews();
   }, [slug]);
 
   const fetchProduct = async () => {
@@ -38,6 +41,19 @@ export default function ProductDetail() {
 
     setProduct(data);
     setLoading(false);
+  };
+
+  const fetchReviews = async () => {
+    const { data } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('is_approved', true)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (data) {
+      setReviews(data);
+    }
   };
 
   if (loading || !product) {
@@ -104,9 +120,16 @@ export default function ProductDetail() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                  <Star 
+                    key={i} 
+                    className={`w-5 h-5 ${
+                      i < Math.floor(product.rating || 4.5) 
+                        ? 'fill-accent text-accent' 
+                        : 'text-muted-foreground'
+                    }`} 
+                  />
                 ))}
-                <span className="text-sm text-muted-foreground">(4.5)</span>
+                <span className="text-sm text-muted-foreground">({product.rating || 4.5})</span>
               </div>
               <p className="text-5xl font-bold mb-2">{product.price} MAD</p>
               <p className="text-lg text-muted-foreground mb-4">{product.description}</p>
@@ -206,6 +229,40 @@ export default function ProductDetail() {
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Customer Reviews Section */}
+        {reviews.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-3xl font-bold mb-8 text-center">Ce Que Nos Clientes Disent</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((review) => (
+                <Card key={review.id} className="border-border">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`w-4 h-4 ${
+                            i < review.rating 
+                              ? 'fill-accent text-accent' 
+                              : 'text-muted-foreground'
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm mb-3">{review.comment}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm">{review.customer_name}</p>
+                      {review.is_verified && (
+                        <Badge variant="secondary" className="text-xs">Achat vérifié</Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <CheckoutModal

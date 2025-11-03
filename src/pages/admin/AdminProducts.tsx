@@ -32,6 +32,7 @@ const AdminProducts = () => {
     image_url: "",
     stock_quantity: "0",
     shipping_cost: "0",
+    rating: "4.5",
     is_active: true,
   });
 
@@ -69,6 +70,7 @@ const AdminProducts = () => {
         image_url: product.image_url || "",
         stock_quantity: product.stock_quantity.toString(),
         shipping_cost: product.shipping_cost?.toString() || "0",
+        rating: product.rating?.toString() || "4.5",
         is_active: product.is_active,
       });
     } else {
@@ -89,6 +91,7 @@ const AdminProducts = () => {
         image_url: "",
         stock_quantity: "0",
         shipping_cost: "0",
+        rating: "4.5",
         is_active: true,
       });
     }
@@ -101,6 +104,7 @@ const AdminProducts = () => {
       price: parseFloat(formData.price),
       stock_quantity: parseInt(formData.stock_quantity),
       shipping_cost: parseFloat(formData.shipping_cost),
+      rating: parseFloat(formData.rating),
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-"),
     };
 
@@ -273,7 +277,7 @@ const AdminProducts = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div>
                 <Label>Prix (MAD) *</Label>
                 <Input
@@ -303,6 +307,18 @@ const AdminProducts = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Si 0, frais par ville appliqués
                 </p>
+              </div>
+              <div>
+                <Label>Note *</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={formData.rating}
+                  onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                  placeholder="4.5"
+                />
               </div>
             </div>
 
