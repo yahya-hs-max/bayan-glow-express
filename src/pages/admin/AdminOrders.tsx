@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import logo from '@/assets/logo.jpg';
 
 const AdminOrders = () => {
   const { toast } = useToast();
@@ -189,24 +190,29 @@ const AdminOrders = () => {
 
     const doc = new jsPDF();
     
+    // Add logo
+    const img = new Image();
+    img.src = logo;
+    doc.addImage(img, 'JPEG', 15, 10, 30, 30);
+    
     // Add header
     doc.setFontSize(20);
-    doc.text('BON DE COMMANDE', 105, 20, { align: 'center' });
+    doc.text('BON DE COMMANDE', 105, 25, { align: 'center' });
     
     // Add order info
     doc.setFontSize(12);
-    doc.text(`Numéro: ${selectedOrder.order_number}`, 20, 35);
-    doc.text(`Date: ${new Date(selectedOrder.created_at).toLocaleDateString('fr-FR')}`, 20, 42);
-    doc.text(`Statut: ${selectedOrder.status}`, 20, 49);
+    doc.text(`Numéro: ${selectedOrder.order_number}`, 20, 48);
+    doc.text(`Date: ${new Date(selectedOrder.created_at).toLocaleDateString('fr-FR')}`, 20, 55);
+    doc.text(`Statut: ${selectedOrder.status}`, 20, 62);
     
     // Add customer info section
     doc.setFontSize(14);
-    doc.text('INFORMATIONS CLIENT:', 20, 62);
+    doc.text('INFORMATIONS CLIENT:', 20, 75);
     doc.setFontSize(11);
-    doc.text(`Nom: ${selectedOrder.customer_name}`, 20, 70);
-    doc.text(`Téléphone: ${selectedOrder.customer_phone}`, 20, 77);
-    doc.text(`Ville: ${selectedOrder.customer_city}`, 20, 84);
-    doc.text(`Adresse: ${selectedOrder.customer_address}`, 20, 91);
+    doc.text(`Nom: ${selectedOrder.customer_name}`, 20, 83);
+    doc.text(`Téléphone: ${selectedOrder.customer_phone}`, 20, 90);
+    doc.text(`Ville: ${selectedOrder.customer_city}`, 20, 97);
+    doc.text(`Adresse: ${selectedOrder.customer_address}`, 20, 104);
     
     // Add order items table
     const tableData = orderItems.map((item: any) => [
@@ -217,7 +223,7 @@ const AdminOrders = () => {
     ]);
     
     autoTable(doc, {
-      startY: 100,
+      startY: 113,
       head: [['Produit', 'Quantité', 'Prix unitaire', 'Sous-total']],
       body: tableData,
       theme: 'grid',
