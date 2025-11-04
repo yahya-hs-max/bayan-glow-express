@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Phone, MessageCircle, Search, Calendar as CalendarIcon, X } from "lucide-react";
+import { Eye, Phone, MessageCircle, Search, Calendar as CalendarIcon, X, Download } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminOrders = () => {
   const { toast } = useToast();
@@ -180,6 +182,85 @@ const AdminOrders = () => {
 
     fetchOrders();
     setSelectedOrder(null);
+  };
+
+  const downloadOrderPDF = () => {
+    if (!selectedOrder) return;
+
+    const doc = new jsPDF();
+    
+    // Add header
+    doc.setFontSize(20);
+    doc.text('BON DE COMMANDE', 105, 20, { align: 'center' });
+    
+    // Add order info
+    doc.setFontSize(12);
+    doc.text(`Numéro: ${selectedOrder.order_number}`, 20, 35);
+    doc.text(`Date: ${new Date(selectedOrder.created_at).toLocaleDateString('fr-FR')}`, 20, 42);
+    doc.text(`Statut: ${selectedOrder.status}`, 20, 49);
+    
+    // Add customer info section
+    doc.setFontSize(14);
+    doc.text('INFORMATIONS CLIENT:', 20, 62);
+    doc.setFontSize(11);
+    doc.text(`Nom: ${selectedOrder.customer_name}`, 20, 70);
+    doc.text(`Téléphone: ${selectedOrder.customer_phone}`, 20, 77);
+    doc.text(`Ville: ${selectedOrder.customer_city}`, 20, 84);
+    doc.text(`Adresse: ${selectedOrder.customer_address}`, 20, 91);
+    
+    // Add order items table
+    const tableData = orderItems.map((item: any) => [
+      item.product_name,
+      item.quantity.toString(),
+      `${Number(item.product_price).toFixed(2)} MAD`,
+      `${Number(item.subtotal).toFixed(2)} MAD`
+    ]);
+    
+    autoTable(doc, {
+      startY: 100,
+      head: [['Produit', 'Quantité', 'Prix unitaire', 'Sous-total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [255, 182, 193] }
+    });
+    
+    // Add totals
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(11);
+    doc.text(`Sous-total: ${Number(selectedOrder.subtotal).toFixed(2)} MAD`, 130, finalY);
+    doc.text(`Frais de livraison: ${Number(selectedOrder.shipping_cost).toFixed(2)} MAD`, 130, finalY + 7);
+    if (selectedOrder.discount_amount > 0) {
+      doc.text(`Réduction: -${Number(selectedOrder.discount_amount).toFixed(2)} MAD`, 130, finalY + 14);
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text(`TOTAL: ${Number(selectedOrder.total_amount).toFixed(2)} MAD`, 130, finalY + 21);
+    } else {
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text(`TOTAL: ${Number(selectedOrder.total_amount).toFixed(2)} MAD`, 130, finalY + 14);
+    }
+
+    // Add payment method
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    const paymentY = (doc as any).lastAutoTable.finalY + 40;
+    doc.text(`Mode de paiement: ${selectedOrder.payment_method || 'COD'}`, 20, paymentY);
+    
+    // Add notes if any
+    if (selectedOrder.notes) {
+      doc.text('Notes:', 20, paymentY + 10);
+      doc.setFontSize(9);
+      const splitNotes = doc.splitTextToSize(selectedOrder.notes, 170);
+      doc.text(splitNotes, 20, paymentY + 17);
+    }
+    
+    // Save PDF
+    doc.save(`Commande_${selectedOrder.order_number}.pdf`);
+    
+    toast({
+      title: "Succès",
+      description: "PDF téléchargé avec succès",
+    });
   };
 
   const statusColors: Record<string, string> = {
@@ -470,7 +551,7 @@ const AdminOrders = () => {
                 </Select>
               </div>
 
-              {/* Notes */}
+               {/* Notes */}
               <div>
                 <label className="block text-sm font-medium mb-2">Notes internes</label>
                 <Textarea
@@ -481,9 +562,19 @@ const AdminOrders = () => {
                 />
               </div>
 
-              <Button onClick={updateOrderStatus} className="w-full bg-primary hover:bg-primary/90 text-black">
-                Sauvegarder les modifications
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={downloadOrderPDF} 
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Télécharger PDF
+                </Button>
+                <Button onClick={updateOrderStatus} className="flex-1 bg-primary hover:bg-primary/90 text-black">
+                  Sauvegarder
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
