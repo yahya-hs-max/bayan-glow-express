@@ -157,6 +157,7 @@ export default function ProductDetail() {
                         <div className="rounded-lg overflow-hidden aspect-square lg:aspect-auto lg:min-h-[500px]">
                           <video
                             src={media.media_url}
+                            poster={product.image_url || images[0]?.media_url}
                             controls
                             muted
                             className="w-full h-full object-cover"
@@ -187,8 +188,9 @@ export default function ProductDetail() {
                         key={`thumb-vid-${media.id}`}
                         className="relative w-full h-16 lg:h-20 rounded cursor-pointer border-2 border-border hover:border-primary transition-colors overflow-hidden"
                       >
-                        <video
-                          src={media.media_url}
+                        <img
+                          src={product.image_url || images[0]?.media_url}
+                          alt={product.name}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">

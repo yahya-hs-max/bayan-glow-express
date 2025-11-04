@@ -75,7 +75,10 @@ export function ProductCard({
       <div className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">{description}</p>
+            <div 
+              className="text-sm text-muted-foreground mb-1 line-clamp-2"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
             <p className="text-3xl font-bold">{price} MAD</p>
           </div>
           <div className="flex items-center gap-1">
