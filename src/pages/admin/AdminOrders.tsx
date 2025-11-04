@@ -6,8 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Phone, MessageCircle, Search } from "lucide-react";
+import { Eye, Phone, MessageCircle, Search, Calendar as CalendarIcon, X } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const AdminOrders = () => {
   const { toast } = useToast();
@@ -15,18 +19,27 @@ const AdminOrders = () => {
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [allOrderItems, setAllOrderItems] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("");
+  const [promoCodeFilter, setPromoCodeFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [newStatus, setNewStatus] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
     fetchOrders();
+    fetchCategories();
+    fetchAllOrderItems();
   }, []);
 
   useEffect(() => {
     filterOrders();
-  }, [orders, searchTerm, statusFilter]);
+  }, [orders, searchTerm, statusFilter, categoryFilter, cityFilter, promoCodeFilter, dateFrom, dateTo, allOrderItems]);
 
   const fetchOrders = async () => {
     const { data, error } = await supabase
@@ -46,13 +59,33 @@ const AdminOrders = () => {
     setOrders(data || []);
   };
 
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name");
+    setCategories(data || []);
+  };
+
+  const fetchAllOrderItems = async () => {
+    const { data } = await supabase
+      .from("order_items")
+      .select(`
+        *,
+        products(category)
+      `);
+    setAllOrderItems(data || []);
+  };
+
   const filterOrders = () => {
     let filtered = orders;
 
+    // Status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
+    // Search term filter
     if (searchTerm) {
       filtered = filtered.filter(
         (order) =>
@@ -62,7 +95,52 @@ const AdminOrders = () => {
       );
     }
 
+    // Category filter
+    if (categoryFilter !== "all") {
+      const orderIdsWithCategory = allOrderItems
+        .filter((item) => item.products?.category === categoryFilter)
+        .map((item) => item.order_id);
+      filtered = filtered.filter((order) => orderIdsWithCategory.includes(order.id));
+    }
+
+    // City filter
+    if (cityFilter) {
+      filtered = filtered.filter((order) =>
+        order.customer_city.toLowerCase().includes(cityFilter.toLowerCase())
+      );
+    }
+
+    // Promo code filter
+    if (promoCodeFilter) {
+      filtered = filtered.filter((order) =>
+        order.coupon_code?.toLowerCase().includes(promoCodeFilter.toLowerCase())
+      );
+    }
+
+    // Date range filter
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter((order) => new Date(order.created_at) >= fromDate);
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((order) => new Date(order.created_at) <= toDate);
+    }
+
     setFilteredOrders(filtered);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setCityFilter("");
+    setPromoCodeFilter("");
+    setDateFrom(undefined);
+    setDateTo(undefined);
   };
 
   const viewOrderDetails = async (order: any) => {
@@ -120,30 +198,108 @@ const AdminOrders = () => {
       {/* Filters */}
       <Card className="mb-6">
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Rechercher par numéro, client, téléphone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm text-muted-foreground">Filtres</h3>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="w-4 h-4 mr-1" />
+                Réinitialiser
+              </Button>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrer par statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="En attente">En attente</SelectItem>
-                <SelectItem value="Confirmée">Confirmée</SelectItem>
-                <SelectItem value="En préparation">En préparation</SelectItem>
-                <SelectItem value="Expédiée">Expédiée</SelectItem>
-                <SelectItem value="Livrée">Livrée</SelectItem>
-                <SelectItem value="Annulée">Annulée</SelectItem>
-              </SelectContent>
-            </Select>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  placeholder="Rechercher..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="En attente">En attente</SelectItem>
+                  <SelectItem value="Confirmée">Confirmée</SelectItem>
+                  <SelectItem value="En préparation">En préparation</SelectItem>
+                  <SelectItem value="Expédiée">Expédiée</SelectItem>
+                  <SelectItem value="Livrée">Livrée</SelectItem>
+                  <SelectItem value="Annulée">Annulée</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Category Filter */}
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Catégorie" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">Toutes les catégories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* City Filter */}
+              <Input
+                placeholder="Ville..."
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+              />
+
+              {/* Promo Code Filter */}
+              <Input
+                placeholder="Code promo..."
+                value={promoCodeFilter}
+                onChange={(e) => setPromoCodeFilter(e.target.value)}
+              />
+
+              {/* Date From */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "dd/MM/yyyy", { locale: fr }) : "Date début"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Date To */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "dd/MM/yyyy", { locale: fr }) : "Date fin"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </CardContent>
       </Card>
