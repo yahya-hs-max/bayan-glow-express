@@ -81,13 +81,20 @@ export function ProductCard({
             />
             <p className="text-3xl font-bold">{price} MAD</p>
           </div>
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${i < Math.floor(rating) ? 'fill-accent text-accent' : 'text-muted'}`}
-              />
-            ))}
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 ${i < Math.floor(rating) ? 'fill-accent text-accent' : 'text-muted'}`}
+                />
+              ))}
+            </div>
+            {stock_quantity !== undefined && stock_quantity <= 10 && (
+              <span className={`text-xs font-medium ${stock_quantity === 0 ? 'text-destructive' : 'text-orange-500'}`}>
+                {stock_quantity === 0 ? 'Rupture' : `${stock_quantity} restants`}
+              </span>
+            )}
           </div>
         </div>
 

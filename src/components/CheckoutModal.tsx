@@ -127,8 +127,26 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
     setLoading(true);
 
     try {
+      // Step 1: Check stock availability for all items
+      for (const item of items) {
+        const { data: product, error: productError } = await supabase
+          .from('products')
+          .select('stock_quantity, name')
+          .eq('id', item.id)
+          .single();
+
+        if (productError) throw productError;
+
+        if (product.stock_quantity < item.quantity) {
+          toast.error(`❌ Stock insuffisant pour ${product.name}. Disponible: ${product.stock_quantity}`);
+          setLoading(false);
+          return;
+        }
+      }
+
       const orderNumber = `BC-${Date.now()}`;
 
+      // Step 2: Create the order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -150,6 +168,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
       if (orderError) throw orderError;
 
+      // Step 3: Create order items
       const orderItems = items.map(item => ({
         order_id: order.id,
         product_id: item.id,
@@ -164,6 +183,28 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Step 4: Reduce stock quantities for each product
+      for (const item of items) {
+        const { data: currentProduct } = await supabase
+          .from('products')
+          .select('stock_quantity')
+          .eq('id', item.id)
+          .single();
+
+        if (currentProduct) {
+          const newStock = currentProduct.stock_quantity - item.quantity;
+          
+          const { error: stockError } = await supabase
+            .from('products')
+            .update({ stock_quantity: Math.max(0, newStock) })
+            .eq('id', item.id);
+
+          if (stockError) {
+            console.error('Error updating stock:', stockError);
+          }
+        }
+      }
 
       if (couponApplied && formData.couponCode) {
         const { data: couponData } = await supabase

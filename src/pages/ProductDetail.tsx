@@ -239,7 +239,13 @@ export default function ProductDetail() {
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
               <p className="text-xs lg:text-sm">
-                Stock disponible: <span className="font-semibold">{product.stock_quantity} unités</span>
+                Stock disponible: <span className={`font-semibold ${
+                  product.stock_quantity === 0 ? 'text-destructive' : 
+                  product.stock_quantity <= 10 ? 'text-orange-500' : 
+                  'text-success'
+                }`}>
+                  {product.stock_quantity === 0 ? 'Rupture de stock' : `${product.stock_quantity} unités`}
+                </span>
               </p>
             </div>
 
