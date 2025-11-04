@@ -18,7 +18,7 @@ const AdminReviews = () => {
       .from("reviews")
       .select(`
         *,
-        products(name)
+        products(name, slug, image_url, id)
       `)
       .order("created_at", { ascending: false });
 
@@ -119,16 +119,37 @@ const AdminReviews = () => {
             {reviews.map((review) => (
               <div key={review.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <p className="font-medium">{review.customer_name}</p>
-                    <p className="text-sm text-gray-600">
-                      {review.products?.name || "Produit inconnu"}
-                    </p>
-                    <div className="flex gap-1 mt-1">{renderStars(review.rating)}</div>
+                  <div className="flex items-start gap-3 flex-1">
+                    {review.products?.image_url && (
+                      <a 
+                        href={`/product/${review.products.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        <img 
+                          src={review.products.image_url} 
+                          alt={review.products.name}
+                          className="w-16 h-16 object-cover rounded-lg hover:opacity-80 transition-opacity"
+                        />
+                      </a>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">{review.customer_name}</p>
+                      <a 
+                        href={`/product/${review.products?.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-primary hover:underline"
+                      >
+                        {review.products?.name || "Produit inconnu"}
+                      </a>
+                      <div className="flex gap-1 mt-1">{renderStars(review.rating)}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-2 ml-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         review.is_approved
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
@@ -136,7 +157,7 @@ const AdminReviews = () => {
                     >
                       {review.is_approved ? "Approuvé" : "En attente"}
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 whitespace-nowrap">
                       {new Date(review.created_at).toLocaleDateString("fr-FR")}
                     </span>
                   </div>
