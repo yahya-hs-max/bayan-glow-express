@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,30 +10,17 @@ import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '@/hooks/useSettings';
 
 interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const SHIPPING_COSTS: Record<string, number> = {
-  'Casablanca': 30,
-  'Rabat': 35,
-  'Marrakech': 40,
-  'Fès': 40,
-  'Tanger': 40,
-  'Agadir': 40,
-  'Meknès': 40,
-  'Oujda': 50,
-  'Kénitra': 35,
-  'Tétouan': 40,
-  'Salé': 35,
-  'Autre': 50,
-};
-
 export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const { items, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -48,7 +35,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   // Calculate shipping cost based on product-specific costs or city costs
   const calculateShippingCost = () => {
     if (!formData.city) return 0;
-    if (subtotal >= 500) return 0; // Free shipping over 500 MAD
+    if (subtotal >= settings.free_shipping_threshold) return 0; // Free shipping threshold from settings
     
     // Check if any product has specific shipping cost
     const productShippingCosts = items
@@ -60,8 +47,8 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       return Math.max(...productShippingCosts);
     }
     
-    // Use city-based shipping cost
-    return SHIPPING_COSTS[formData.city] || 50;
+    // Use city-based shipping cost from settings
+    return settings.shipping_costs[formData.city] || 50;
   };
 
   const shippingCost = calculateShippingCost();
@@ -256,8 +243,8 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Frais de livraison</span>
-                <span className={shippingCost === 0 && subtotal >= 500 ? 'text-success font-semibold' : ''}>
-                  {shippingCost === 0 && subtotal >= 500 ? 'GRATUIT' : `${shippingCost} MAD`}
+                <span className={shippingCost === 0 && subtotal >= settings.free_shipping_threshold ? 'text-success font-semibold' : ''}>
+                  {shippingCost === 0 && subtotal >= settings.free_shipping_threshold ? 'GRATUIT' : `${shippingCost} MAD`}
                 </span>
               </div>
               {discount > 0 && (
@@ -307,7 +294,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                   <SelectValue placeholder="Sélectionnez votre ville" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.keys(SHIPPING_COSTS).map(city => (
+                  {Object.keys(settings.shipping_costs).map(city => (
                     <SelectItem key={city} value={city}>{city}</SelectItem>
                   ))}
                 </SelectContent>

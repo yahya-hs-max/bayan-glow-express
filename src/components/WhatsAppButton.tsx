@@ -1,9 +1,12 @@
 import { MessageCircle } from 'lucide-react';
+import { useSettings } from '@/hooks/useSettings';
 
 export function WhatsAppButton() {
+  const { settings } = useSettings();
+  
   const handleClick = () => {
     const message = encodeURIComponent('Bonjour Bayan Cosmetic, j\'aimerais avoir plus d\'informations sur vos produits.');
-    window.open(`https://wa.me/212600000000?text=${message}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp_number}?text=${message}`, '_blank');
   };
 
   return (

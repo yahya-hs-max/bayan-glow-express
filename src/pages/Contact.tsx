@@ -4,8 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function Contact() {
+  const { settings, loading } = useSettings();
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success('Message envoyé ! Nous vous répondrons sous 24h.');
@@ -73,8 +76,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold mb-1">Email</h3>
-                    <a href="mailto:contact@bayancosmetic.ma" className="text-muted-foreground hover:text-primary">
-                      contact@bayancosmetic.ma
+                    <a href={`mailto:${settings.contact_email}`} className="text-muted-foreground hover:text-primary">
+                      {loading ? 'Chargement...' : settings.contact_email}
                     </a>
                   </div>
                 </div>
@@ -85,8 +88,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold mb-1">Téléphone</h3>
-                    <a href="tel:+212600000000" className="text-muted-foreground hover:text-primary">
-                      +212 600 000 000
+                    <a href={`tel:${settings.contact_phone.replace(/\s/g, '')}`} className="text-muted-foreground hover:text-primary">
+                      {loading ? 'Chargement...' : settings.contact_phone}
                     </a>
                   </div>
                 </div>
