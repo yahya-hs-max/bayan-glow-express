@@ -80,7 +80,7 @@ export function ProductCard({
       onClick={() => navigate(`/produit/${slug}`)}
     >
       <div
-        className="h-64 relative flex items-center justify-center p-8"
+        className={`h-64 relative flex items-center justify-center ${primaryImage ? '' : 'p-8'}`}
         style={{ background: background_gradient }}
       >
         {badge_type && (
@@ -95,7 +95,7 @@ export function ProductCard({
           <img 
             src={primaryImage} 
             alt={name}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         ) : (
           <div className="text-center">
