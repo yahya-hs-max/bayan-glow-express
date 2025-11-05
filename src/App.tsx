@@ -26,6 +26,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminShipping from "./pages/admin/AdminShipping";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                   <Route path="coupons" element={<AdminCoupons />} />
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="settings" element={<AdminSettings />} />
+                  <Route path="shipping" element={<AdminShipping />} />
                 </Route>
                 
                 <Route path="*" element={<NotFound />} />

@@ -119,6 +119,7 @@ export type Database = {
           product_name: string | null
           product_price: number | null
           quantity: number
+          selected_variants: Json | null
           subtotal: number | null
         }
         Insert: {
@@ -129,6 +130,7 @@ export type Database = {
           product_name?: string | null
           product_price?: number | null
           quantity: number
+          selected_variants?: Json | null
           subtotal?: number | null
         }
         Update: {
@@ -139,6 +141,7 @@ export type Database = {
           product_name?: string | null
           product_price?: number | null
           quantity?: number
+          selected_variants?: Json | null
           subtotal?: number | null
         }
         Relationships: [
@@ -252,6 +255,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      product_variant_options: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          option_name: string
+          price_modifier: number | null
+          stock_quantity: number | null
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          option_name: string
+          price_modifier?: number | null
+          stock_quantity?: number | null
+          variant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          option_name?: string
+          price_modifier?: number | null
+          stock_quantity?: number | null
+          variant_id?: string
+        }
+        Relationships: []
+      }
+      product_variants: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_required: boolean | null
+          product_id: string
+          variant_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_required?: boolean | null
+          product_id: string
+          variant_name: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_required?: boolean | null
+          product_id?: string
+          variant_name?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -384,6 +447,33 @@ export type Database = {
           key?: string
           updated_at?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      shipping_costs: {
+        Row: {
+          city_name: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          shipping_cost: number
+          updated_at: string | null
+        }
+        Insert: {
+          city_name: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          shipping_cost?: number
+          updated_at?: string | null
+        }
+        Update: {
+          city_name?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          shipping_cost?: number
+          updated_at?: string | null
         }
         Relationships: []
       }

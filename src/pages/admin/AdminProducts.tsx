@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { ProductMediaManager } from "@/components/admin/ProductMediaManager";
+import { ProductVariantManager } from "@/components/admin/ProductVariantManager";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -299,10 +300,13 @@ const AdminProducts = () => {
           </DialogHeader>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="info">Informations</TabsTrigger>
               <TabsTrigger value="media" disabled={!editingProduct}>
                 Médias {!editingProduct && "(Créer d'abord)"}
+              </TabsTrigger>
+              <TabsTrigger value="variants" disabled={!editingProduct}>
+                Variantes {!editingProduct && "(Créer d'abord)"}
               </TabsTrigger>
             </TabsList>
 
@@ -516,6 +520,12 @@ const AdminProducts = () => {
                 productId={editingProduct?.id}
                 onMediaUpdate={fetchProducts}
               />
+            </TabsContent>
+          )}
+          
+          {editingProduct && (
+            <TabsContent value="variants">
+              <ProductVariantManager productId={editingProduct.id} />
             </TabsContent>
           )}
         </Tabs>

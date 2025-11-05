@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Truck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -76,6 +77,7 @@ const AdminLayout = () => {
     { to: "/admin/categories", icon: FolderTree, label: "Catégories" },
     { to: "/admin/coupons", icon: Ticket, label: "Coupons" },
     { to: "/admin/reviews", icon: Star, label: "Avis clients" },
+    { to: "/admin/shipping", icon: Truck, label: "Livraison" },
     { to: "/admin/settings", icon: Settings, label: "Paramètres" },
   ];
 

@@ -22,6 +22,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const [loading, setLoading] = useState(false);
+  const [shippingCities, setShippingCities] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -31,6 +32,20 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   });
   const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
+
+  useEffect(() => {
+    fetchShippingCities();
+  }, []);
+
+  const fetchShippingCities = async () => {
+    const { data } = await supabase
+      .from('shipping_costs')
+      .select('*')
+      .eq('is_active', true)
+      .order('city_name');
+    
+    setShippingCities(data || []);
+  };
 
   // Calculate shipping cost based on product-specific costs or city costs
   const calculateShippingCost = () => {
@@ -47,8 +62,9 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       return Math.max(...productShippingCosts);
     }
     
-    // Use city-based shipping cost from settings
-    return settings.shipping_costs[formData.city] || 50;
+    // Use city-based shipping cost from database
+    const city = shippingCities.find(c => c.city_name === formData.city);
+    return city?.shipping_cost || 50;
   };
 
   const shippingCost = calculateShippingCost();
@@ -294,8 +310,10 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                   <SelectValue placeholder="Sélectionnez votre ville" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.keys(settings.shipping_costs).map(city => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  {shippingCities.map(city => (
+                    <SelectItem key={city.id} value={city.city_name}>
+                      {city.city_name} ({city.shipping_cost} MAD)
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
