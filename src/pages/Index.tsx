@@ -3,15 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Leaf, Award, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
-import { CheckoutModal } from '@/components/CheckoutModal';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 export default function Index() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -32,10 +28,6 @@ export default function Index() {
     setProducts(data || []);
   };
 
-  const handleBuyNow = (product: any) => {
-    setSelectedProduct(product);
-    setCheckoutOpen(true);
-  };
 
   return (
     <div className="min-h-screen">
@@ -100,7 +92,6 @@ export default function Index() {
               <ProductCard
                 key={product.id}
                 {...product}
-                onBuyNow={() => handleBuyNow(product)}
               />
             ))}
           </div>
@@ -148,16 +139,6 @@ export default function Index() {
           </div>
         </div>
       </section>
-
-      {selectedProduct && (
-        <CheckoutModal
-          open={checkoutOpen}
-          onClose={() => {
-            setCheckoutOpen(false);
-            setSelectedProduct(null);
-          }}
-        />
-      )}
     </div>
   );
 }

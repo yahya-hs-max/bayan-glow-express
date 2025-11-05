@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ProductCard } from '@/components/ProductCard';
-import { CheckoutModal } from '@/components/CheckoutModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useCart } from '@/contexts/CartContext';
 
 export default function Boutique() {
   const [products, setProducts] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('');
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const { addItem } = useCart();
 
   useEffect(() => {
     fetchProducts();
@@ -54,18 +49,6 @@ export default function Boutique() {
 
   const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
 
-  const handleBuyNow = (product: any) => {
-    addItem({ 
-      id: product.id, 
-      name: product.name, 
-      price: product.price, 
-      quantity: 1, 
-      size: product.size,
-      shipping_cost: product.shipping_cost 
-    });
-    setSelectedProduct(product);
-    setCheckoutOpen(true);
-  };
 
   return (
     <div className="min-h-screen py-12 px-4">
@@ -110,7 +93,6 @@ export default function Boutique() {
             <ProductCard
               key={product.id}
               {...product}
-              onBuyNow={() => handleBuyNow(product)}
             />
           ))}
         </div>
@@ -121,16 +103,6 @@ export default function Boutique() {
           </div>
         )}
       </div>
-
-      {selectedProduct && (
-        <CheckoutModal
-          open={checkoutOpen}
-          onClose={() => {
-            setCheckoutOpen(false);
-            setSelectedProduct(null);
-          }}
-        />
-      )}
     </div>
   );
 }

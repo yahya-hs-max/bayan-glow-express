@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProductCardProps {
   id: string;
@@ -19,7 +21,6 @@ interface ProductCardProps {
   stock_quantity: number;
   shipping_cost?: number;
   rating?: number;
-  onBuyNow: () => void;
 }
 
 export function ProductCard({
@@ -35,10 +36,27 @@ export function ProductCard({
   stock_quantity,
   shipping_cost,
   rating = 4.5,
-  onBuyNow,
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const [primaryImage, setPrimaryImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProductMedia = async () => {
+      const { data } = await supabase
+        .from('product_media')
+        .select('media_url')
+        .eq('product_id', id)
+        .eq('is_primary', true)
+        .single();
+      
+      if (data) {
+        setPrimaryImage(data.media_url);
+      }
+    };
+
+    fetchProductMedia();
+  }, [id]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -68,15 +86,23 @@ export function ProductCard({
         {badge_type && (
           <Badge 
             variant={badge_color as any} 
-            className="absolute top-4 left-4"
+            className="absolute top-4 left-4 z-10"
           >
             {badge_type}
           </Badge>
         )}
-        <div className="text-center">
-          <h3 className="text-2xl font-bold mb-2">{name}</h3>
-          <p className="text-sm text-muted-foreground">{size}</p>
-        </div>
+        {primaryImage ? (
+          <img 
+            src={primaryImage} 
+            alt={name}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-2">{name}</h3>
+            <p className="text-sm text-muted-foreground">{size}</p>
+          </div>
+        )}
       </div>
 
       <div className="p-6 space-y-4">
@@ -106,15 +132,6 @@ export function ProductCard({
         </div>
 
         <div className="space-y-2">
-          <Button
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-            onClick={(e) => {
-              e.stopPropagation();
-              onBuyNow();
-            }}
-          >
-            Acheter Maintenant
-          </Button>
           <Button
             variant="outline"
             className="w-full"
