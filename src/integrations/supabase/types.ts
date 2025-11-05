@@ -256,6 +256,7 @@ export type Database = {
       products: {
         Row: {
           background_gradient: string | null
+          badge_color: string | null
           badge_type: string | null
           benefits: string[] | null
           category: string | null
@@ -278,6 +279,7 @@ export type Database = {
         }
         Insert: {
           background_gradient?: string | null
+          badge_color?: string | null
           badge_type?: string | null
           benefits?: string[] | null
           category?: string | null
@@ -300,6 +302,7 @@ export type Database = {
         }
         Update: {
           background_gradient?: string | null
+          badge_color?: string | null
           badge_type?: string | null
           benefits?: string[] | null
           category?: string | null

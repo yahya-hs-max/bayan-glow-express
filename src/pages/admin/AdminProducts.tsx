@@ -32,6 +32,7 @@ const AdminProducts = () => {
     category: "",
     background_gradient: "",
     badge_type: "",
+    badge_color: "default",
     ingredients: [] as string[],
     benefits: [] as string[],
     usage_instructions: "",
@@ -97,6 +98,7 @@ const AdminProducts = () => {
         category: product.category || "",
         background_gradient: product.background_gradient || "",
         badge_type: product.badge_type || "",
+        badge_color: product.badge_color || "default",
         ingredients: product.ingredients || [],
         benefits: product.benefits || [],
         usage_instructions: product.usage_instructions || "",
@@ -117,6 +119,7 @@ const AdminProducts = () => {
         category: "",
         background_gradient: "",
         badge_type: "",
+        badge_color: "default",
         ingredients: [],
         benefits: [],
         usage_instructions: "",
@@ -387,6 +390,34 @@ const AdminProducts = () => {
                         {cat.name}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Badge / Tag</Label>
+                <Input
+                  value={formData.badge_type}
+                  onChange={(e) => setFormData({ ...formData, badge_type: e.target.value })}
+                  placeholder="Ex: Nouveau, Promo, Bio..."
+                />
+              </div>
+              <div>
+                <Label>Couleur du badge</Label>
+                <Select value={formData.badge_color} onValueChange={(value) => setFormData({ ...formData, badge_color: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une couleur" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Par défaut (Gris)</SelectItem>
+                    <SelectItem value="primary">Principal (Or)</SelectItem>
+                    <SelectItem value="secondary">Secondaire</SelectItem>
+                    <SelectItem value="destructive">Rouge</SelectItem>
+                    <SelectItem value="success">Vert</SelectItem>
+                    <SelectItem value="warning">Orange</SelectItem>
+                    <SelectItem value="info">Bleu</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -15,6 +15,7 @@ interface ProductCardProps {
   size: string;
   background_gradient: string;
   badge_type: string;
+  badge_color?: string;
   stock_quantity: number;
   shipping_cost?: number;
   rating?: number;
@@ -30,6 +31,7 @@ export function ProductCard({
   size,
   background_gradient,
   badge_type,
+  badge_color = "default",
   stock_quantity,
   shipping_cost,
   rating = 4.5,
@@ -63,9 +65,14 @@ export function ProductCard({
         className="h-64 relative flex items-center justify-center p-8"
         style={{ background: background_gradient }}
       >
-        <Badge className="absolute top-4 left-4 bg-card text-card-foreground border-border">
-          {badge_type}
-        </Badge>
+        {badge_type && (
+          <Badge 
+            variant={badge_color as any} 
+            className="absolute top-4 left-4"
+          >
+            {badge_type}
+          </Badge>
+        )}
         <div className="text-center">
           <h3 className="text-2xl font-bold mb-2">{name}</h3>
           <p className="text-sm text-muted-foreground">{size}</p>
