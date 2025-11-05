@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useSettings } from '@/hooks/useSettings';
 
 interface ProductCardProps {
   id: string;
@@ -39,6 +40,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { settings } = useSettings();
   const [primaryImage, setPrimaryImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export function ProductCard({
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
     const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par ${name} - ${price} MAD`);
-    window.open(`https://wa.me/212600000000?text=${message}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp_number}?text=${message}`, '_blank');
   };
 
   return (

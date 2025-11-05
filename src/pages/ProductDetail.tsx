@@ -13,11 +13,13 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { CheckoutModal } from '@/components/CheckoutModal';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { settings } = useSettings();
   const [product, setProduct] = useState<any>(null);
   const [productMedia, setProductMedia] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -120,7 +122,7 @@ export default function ProductDetail() {
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par ${product.name} - ${product.price} MAD`);
-    window.open(`https://wa.me/212600000000?text=${message}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp_number}?text=${message}`, '_blank');
   };
 
   const images = productMedia.filter(m => m.media_type === 'image');
